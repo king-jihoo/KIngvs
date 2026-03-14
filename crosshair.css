@@ -115,17 +115,7 @@ button:focus-visible {
   position: absolute;
   background: var(--color, #3f88c5);
   opacity: var(--opacity, 0.9);
-  box-shadow: none;
-}
-
-.arm::before,
-.dot::before {
-  content: "";
-  position: absolute;
-  inset: calc(var(--outline, 0px) * -1);
-  border-radius: inherit;
-  background: rgba(0, 0, 0, var(--outline-opacity, 0.65));
-  z-index: -1;
+  box-shadow: 0 0 0 var(--outline, 0px) rgba(0, 0, 0, var(--outline-opacity, 0.65));
 }
 
 .arm--top {

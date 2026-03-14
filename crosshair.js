@@ -14,6 +14,7 @@ const fields = {
   dotSize: document.getElementById("dotSize"),
   opacity: document.getElementById("opacity"),
   outline: document.getElementById("outline"),
+  outlineOpacity: document.getElementById("outlineOpacity"),
   rotation: document.getElementById("rotation"),
 };
 
@@ -27,6 +28,7 @@ const defaults = {
   dotSize: "4",
   opacity: "0.9",
   outline: "2",
+  outlineOpacity: "0.65",
   rotation: "0",
 };
 
@@ -125,6 +127,7 @@ const applyState = () => {
     dotSize: Number(fields.dotSize.value),
     opacity: Number(fields.opacity.value),
     outline: Number(fields.outline.value),
+    outlineOpacity: Number(fields.outlineOpacity.value),
     rotation: Number(fields.rotation.value),
   };
 
@@ -138,6 +141,7 @@ const applyState = () => {
   crosshair.style.setProperty("--dot", `${state.dotSize}px`);
   crosshair.style.setProperty("--opacity", state.pureColor ? 1 : state.opacity);
   crosshair.style.setProperty("--outline", `${state.pureColor ? 0 : state.outline}px`);
+  crosshair.style.setProperty("--outline-opacity", state.outlineOpacity);
   crosshair.style.setProperty("--rotation", `${state.rotation}deg`);
 
   dot.style.display = state.dotSize === 0 ? "none" : "block";
@@ -157,6 +161,12 @@ const resetAll = () => {
 
 Object.values(fields).forEach((input) => {
   input.addEventListener("input", applyState);
+});
+
+fields.intensity.addEventListener("input", () => {
+  if (fields.pureColor.checked) {
+    fields.pureColor.checked = false;
+  }
 });
 
 copyBtn.addEventListener("click", async () => {

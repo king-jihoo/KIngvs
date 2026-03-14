@@ -73,23 +73,23 @@ const toValorantCode = (state) => {
   };
 
   const hex = state.color.replace("#", "").toUpperCase();
+  const hexWithAlpha = `${hex}FF`;
 
   // Use custom hex color (6-digit) for Valorant crosshair color.
   add("c", 8, 4);
-  add("u", hex, 5);
+  add("u", hexWithAlpha, 5);
 
   if (state.outline > 0) {
     add("h", 1, 6);
     add("t", clamp(state.outline, 1, 6), 7);
-    add("o", formatDecimal(state.opacity), 8);
+    add("o", formatDecimal(state.outlineOpacity), 8);
   } else {
     add("h", 0, 6);
   }
 
   if (state.dotSize > 0) {
     add("d", 1, 9);
-    const dotThickness = clamp(Math.round(state.dotSize / 3), 1, 6);
-    add("z", dotThickness, 11);
+    add("z", state.dotSize, 11);
     add("a", formatDecimal(state.opacity), 12);
   } else {
     add("d", 0, 9);
@@ -99,10 +99,10 @@ const toValorantCode = (state) => {
   add("f", 0, 13);
 
   add("0b", 1, 16);
-  add("0t", clamp(Math.round(state.thickness), 0, 10), 17);
-  add("0l", clamp(Math.round(state.length), 0, 20), 18);
-  add("0v", clamp(Math.round(state.length), 0, 20), 19);
-  add("0o", clamp(Math.round(state.gap), 0, 20), 21);
+  add("0t", clamp(state.thickness, 0, 10), 17);
+  add("0l", clamp(state.length, 0, 20), 18);
+  add("0v", clamp(state.length, 0, 20), 19);
+  add("0o", clamp(state.gap, 0, 20), 21);
   add("0a", formatDecimal(state.opacity), 22);
   add("0f", 0, 24);
 
@@ -131,21 +131,34 @@ const applyState = () => {
     rotation: Number(fields.rotation.value),
   };
 
+  const gameThickness = clamp(Math.round(state.thickness), 0, 10);
+  const gameLength = clamp(Math.round(state.length), 0, 20);
+  const gameGap = clamp(Math.round(state.gap), 0, 20);
+  const gameDot = state.dotSize === 0 ? 0 : clamp(Math.round(state.dotSize / 3), 1, 6);
+  const gameOutline = clamp(Math.round(state.outline), 0, 6);
+
   const displayColor = state.pureColor
     ? state.color
     : applyIntensity(state.color, state.intensity);
   crosshair.style.setProperty("--color", displayColor);
-  crosshair.style.setProperty("--thickness", `${state.thickness}px`);
-  crosshair.style.setProperty("--length", `${state.length}px`);
-  crosshair.style.setProperty("--gap", `${state.gap}px`);
-  crosshair.style.setProperty("--dot", `${state.dotSize}px`);
+  crosshair.style.setProperty("--thickness", `${gameThickness}px`);
+  crosshair.style.setProperty("--length", `${gameLength}px`);
+  crosshair.style.setProperty("--gap", `${gameGap}px`);
+  crosshair.style.setProperty("--dot", `${gameDot * 3}px`);
   crosshair.style.setProperty("--opacity", state.pureColor ? 1 : state.opacity);
-  crosshair.style.setProperty("--outline", `${state.pureColor ? 0 : state.outline}px`);
+  crosshair.style.setProperty("--outline", `${state.pureColor ? 0 : gameOutline}px`);
   crosshair.style.setProperty("--outline-opacity", state.outlineOpacity);
   crosshair.style.setProperty("--rotation", `${state.rotation}deg`);
 
   dot.style.display = state.dotSize === 0 ? "none" : "block";
-  updateOutput(state);
+  updateOutput({
+    ...state,
+    thickness: gameThickness,
+    length: gameLength,
+    gap: gameGap,
+    dotSize: gameDot,
+    outline: gameOutline,
+  });
 };
 
 const resetAll = () => {
